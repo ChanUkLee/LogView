@@ -8,21 +8,18 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
 
 // Creating a ListView with custom list items programmatically in Android - no xml list item layout
 // https://stackoverflow.com/questions/12784695/creating-a-listview-with-custom-list-items-programmatically-in-android-no-xml
 class LogcatAdpater extends ArrayAdapter<LogcatInfo> {
 
-    public LogcatAdpater(@NonNull Context context, ArrayList<LogcatInfo> resource) {
+    public LogcatAdpater(Context context, ArrayList<LogcatInfo> resource) {
         super(context, -1, -1, resource);
     }
 
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(int position, View convertView, ViewGroup parent) {
         LogcatInfo logcatInfo = super.getItem(position);
 
         LinearLayout rootLayout = new LinearLayout(getContext());
