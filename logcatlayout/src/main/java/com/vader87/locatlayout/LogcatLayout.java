@@ -12,23 +12,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+
+// How to create a release android library package (aar) in Android Studio (not debug)
+// https://stackoverflow.com/questions/27646262/how-to-create-a-release-android-library-package-aar-in-android-studio-not-deb
 
 // Android Module을 Bintray(JCenter)에 배포하는 방법
 // https://thdev.tech/androiddev/2016/09/01/Android-Bintray(JCenter)-Publish/
@@ -73,55 +67,6 @@ public class LogcatLayout extends ViewGroup {
         initView();
     }
 
-    protected void onAnimation(final boolean isShow) {
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        int height = displayMetrics.heightPixels;
-
-        ValueAnimator animator = ValueAnimator.ofInt(_scrollView.getMeasuredHeight(), isShow ? getBottom() : 0);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int value = (Integer)animation.getAnimatedValue();
-                ViewGroup.LayoutParams layoutParams = _scrollView.getLayoutParams();
-                layoutParams.height = value;
-                _scrollView.setLayoutParams(layoutParams);
-            }
-        });
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                if (isShow) {
-                    _rootLayout.removeView(_btnShowView);
-                    _listView.addHeaderView(_headerView);
-                } else {
-
-                }
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (isShow) {
-
-                } else {
-                    _listView.removeHeaderView(_headerView);
-                    _rootLayout.addView(_btnShowView, 0);
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        animator.setDuration(500);
-        animator.start();
-    }
-
     protected void initView() {
         // LinearLayout API
         // https://developer.android.com/reference/android/widget/LinearLayout
@@ -132,19 +77,12 @@ public class LogcatLayout extends ViewGroup {
 
         Button button = new Button(getContext());
         button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        button.setText("Show");
+        button.setText(getContext().getString(R.string.btn_show));
         button.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "Show");
-
-
                 onAnimation(true);
-
-                //_scrollView.getLayoutParams().height = 1000;
-                //_rootLayout.invalidate();
-                //_rootLayout.requestLayout();
             }
         });
 
@@ -178,20 +116,12 @@ public class LogcatLayout extends ViewGroup {
 
         Button btnHide = new Button(getContext());
         btnHide.setLayoutParams(btnHideParams);
-        btnHide.setText("Hide");
+        btnHide.setText(getContext().getString(R.string.btn_hide));
         btnHide.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "Hide");
-
-
-
                 onAnimation(false);
-
-                //_scrollView.getLayoutParams().height = 500;
-                //_rootLayout.invalidate();
-                //_rootLayout.requestLayout();
             }
         });
         headerLayout.addView(btnHide);
@@ -210,6 +140,51 @@ public class LogcatLayout extends ViewGroup {
         _scrollView.addView(_listView);
 
         addView(_rootLayout);
+    }
+
+    protected void onAnimation(final boolean isShow) {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        int height = displayMetrics.heightPixels;
+
+        ValueAnimator animator = ValueAnimator.ofInt(_scrollView.getMeasuredHeight(), isShow ? getBottom() : 0);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int value = (Integer)animation.getAnimatedValue();
+                ViewGroup.LayoutParams layoutParams = _scrollView.getLayoutParams();
+                layoutParams.height = value;
+                _scrollView.setLayoutParams(layoutParams);
+            }
+        });
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (isShow) {
+                    _rootLayout.removeView(_btnShowView);
+                    _listView.addHeaderView(_headerView);
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (!isShow) {
+                    _listView.removeHeaderView(_headerView);
+                    _rootLayout.addView(_btnShowView, 0);
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animator.setDuration(500);
+        animator.start();
     }
 
     @Override
@@ -254,8 +229,6 @@ public class LogcatLayout extends ViewGroup {
 
         setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
                 resolveSizeAndState(maxHeight, heightMeasureSpec, 0));
-
-        Log.d(TAG, "onMeasure count(" + getChildCount() + ") width(" + maxWidth + ") height(" + maxHeight + ")");
     }
 
     @Override
@@ -282,36 +255,20 @@ public class LogcatLayout extends ViewGroup {
         }
     }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        Log.d(TAG, "onInterceptTouchEvent");
-        return false;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        Log.d(TAG, "onTouchEvent");
-        return false;
-    }
-
     public void w(String tag, String msg) {
-        Log.w(tag, msg);
         add(Log.WARN, tag, msg);
     }
 
     public void d(String tag, String msg) {
-        Log.d(tag, msg);
         add(Log.DEBUG, tag, msg);
     }
 
     public void e(String tag, String msg) {
-        Log.e(tag, msg);
         add(Log.ERROR, tag, msg);
     }
 
     private void add(int logType, String tag, String msg) {
-        Log.d(TAG, msg);
-        _logcatAdapter.add(new LogcatInfo(logType, tag, msg));
+        _logcatAdapter.add(new LogcatInfo(getContext(), logType, tag, msg));
         _logcatAdapter.notifyDataSetChanged();
         setListViewHeightBasedOnChildren(_listView);
     }
@@ -332,116 +289,6 @@ public class LogcatLayout extends ViewGroup {
 
     public void removeAll() {
         _logcatAdapter.clear();
-    }
-
-    public class LogcatInfo {
-        private final int IGNORE_DEPTH = 0;
-
-        private int _logType = 0;
-        private boolean _extend = false;
-        private String _miniLog = "";
-        private String _shortLog = "";
-        private ArrayList<String> _fullLogs = null;
-
-        public LogcatInfo(int logType, String tag, String msg) {
-            _logType = logType;
-
-            Date date = Calendar.getInstance().getTime();
-            _miniLog = tag + ": " + msg;
-            _shortLog = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(date) + " "
-                      + android.os.Process.myPid() + "/" + getContext().getApplicationContext().getPackageName() + " "
-                      + getLogTypeToString(_logType) + "/" + tag + ": " + msg;
-
-            _fullLogs = new ArrayList<String>();
-            _fullLogs.add(_shortLog);
-
-            StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
-            // Ignore depth not working
-            for (int i = IGNORE_DEPTH; i < stacks.length; i++) {
-                _fullLogs.add(stacks[i].toString());
-            }
-        }
-
-        private String getLogTypeToString(int logType) {
-            switch (logType) {
-                case Log.DEBUG:
-                    return "D";
-                case Log.WARN:
-                    return "W";
-                case Log.ERROR:
-                    return "E";
-                default:
-                    break;
-            }
-            return "";
-        }
-
-        public String getMiniLog() {
-            return _miniLog;
-        }
-
-        public String getShortLog() {
-            return _shortLog;
-        }
-
-        public ArrayList<String> getFullLogs() {
-            return _fullLogs;
-        }
-
-        public void setExtend(boolean extend) {
-            _extend = extend;
-        }
-
-        public boolean isExtend() {
-            return _extend;
-        }
-    }
-
-    // Creating a ListView with custom list items programmatically in Android - no xml list item layout
-    // https://stackoverflow.com/questions/12784695/creating-a-listview-with-custom-list-items-programmatically-in-android-no-xml
-    public class LogcatAdpater extends ArrayAdapter<LogcatInfo> {
-
-        public LogcatAdpater(@NonNull Context context, ArrayList<LogcatInfo> resource) {
-            super(context, -1, -1, resource);
-        }
-
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            LogcatInfo logcatInfo = super.getItem(position);
-
-            LinearLayout rootLayout = new LinearLayout(getContext());
-            rootLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            rootLayout.setBackgroundColor((getChildCount() % 2 == 0) ? Color.GRAY : Color.DKGRAY);
-
-            if (logcatInfo.isExtend()) {
-                rootLayout.setOrientation(LinearLayout.VERTICAL);
-
-                // Java - Stack trace 출력하는 방법 (Throwable, Exception)
-                // https://codechacha.com/ko/java-print-stack-trace/
-                for (int i = 0; i < logcatInfo.getFullLogs().size(); i++) {
-                    LinearLayout singleLineLayout = new LinearLayout(getContext());
-                    singleLineLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    singleLineLayout.setOrientation(LinearLayout.VERTICAL);
-                    rootLayout.addView(singleLineLayout);
-
-                    TextView textView = new TextView(getContext());
-                    textView.setText(logcatInfo.getFullLogs().get(i));
-                    textView.setTextColor(Color.WHITE);
-
-                    singleLineLayout.addView(textView);
-                }
-            } else {
-                rootLayout.setOrientation(LinearLayout.HORIZONTAL);
-
-                TextView textView = new TextView(getContext());
-                textView.setText(logcatInfo.getMiniLog());
-                textView.setTextColor(Color.WHITE);
-
-                rootLayout.addView(textView);
-            }
-
-            return rootLayout;
-        }
     }
 
     @Override
@@ -473,13 +320,6 @@ public class LogcatLayout extends ViewGroup {
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
-            //TypedArray a = c.obtainStyledAttributes(attrs,
-            //        com.android.internal.R.styleable.AbsoluteLayout_Layout);
-            //x = a.getDimensionPixelOffset(
-            //        com.android.internal.R.styleable.AbsoluteLayout_Layout_layout_x, 0);
-            //y = a.getDimensionPixelOffset(
-            //        com.android.internal.R.styleable.AbsoluteLayout_Layout_layout_y, 0);
-            //a.recycle();
         }
 
         public LayoutParams(ViewGroup.LayoutParams source) {

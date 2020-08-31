@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">LocatLayout</string>
+    <string name="single_log_type_string_debug">D</string>
+    <string name="single_log_type_string_warn">W</string>
+    <string name="single_log_type_string_error">E</string>
+    <string name="btn_show">Show</string>
+    <string name="btn_hide">hide</string>
 </resources>
