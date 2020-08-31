@@ -1,3 +1,31 @@
+// 빌드 변형 구성
+// https://developer.android.com/studio/build/build-variants
+
+// https://github.com/bintray/gradle-bintray-plugin
+ext {
+    bintrayRepo = 'logcatlayout'
+    bintrayName = 'logcatlayout-lib'
+
+    publishedGroupId = 'com.vader87.logcatlayout'
+    libraryName = 'logcatlayout-lib'
+    artifact = 'logcatlayout-lib'
+
+    libraryDescription = 'LogcatLayout library'
+
+    siteUrl = 'https://github.com/ChanUkLee/LogcatLayout'
+    gitUrl = 'https://github.com/ChanUkLee/LogcatLayout.git'
+
+    libraryVersion = '1.0.0'
+
+    developerId = 'vader87' // Maven plugin uses this. I don't know if it needs to be anything special.
+    developerName = 'Vader87'
+    developerEmail = 'chanuklee0227@gmail.com'
+
+    licenseName = 'The MIT License (MIT)'
+    licenseUrl = 'https://opensource.org/licenses/MIT'
+    allLicenses = ["MIT"]
+}
+
 apply plugin: 'com.android.library'
 
 android {
@@ -8,9 +36,11 @@ android {
         minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName '1.0.0'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // apk파일 이름에 version 정보가 들어가도록 내용 추가
+        // setProperty("archivesBaseName", "logcatlayout-v${versionName}c${versionCode}")
     }
 
     buildTypes {
@@ -31,7 +61,6 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
-    implementation "androidx.annotation:annotation:1.1.0"
-    implementation "androidx.annotation:annotation-experimental:1.0.0"
 }
+
+apply from: 'publish.gradle'

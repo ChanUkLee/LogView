@@ -24,8 +24,10 @@ import java.util.ArrayList;
 // How to create a release android library package (aar) in Android Studio (not debug)
 // https://stackoverflow.com/questions/27646262/how-to-create-a-release-android-library-package-aar-in-android-studio-not-deb
 
-// Android Module을 Bintray(JCenter)에 배포하는 방법
-// https://thdev.tech/androiddev/2016/09/01/Android-Bintray(JCenter)-Publish/
+// JCenter(Bintray) 배포 방법
+// http://www.bluebee.co.kr/?p=440
+// How to sign AAR Artifacts in Android?
+// https://stackoverflow.com/questions/43121499/how-to-sign-aar-artifacts-in-android
 
 // Custom ViewGroup Examples
 // https://github.com/aosp-mirror/platform_frameworks_base/blob/master/core/java/android/widget/AbsoluteLayout.java
