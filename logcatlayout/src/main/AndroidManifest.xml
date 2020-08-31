@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.vader87.locatlayout">
-    <application android:label="@string/app_name"/>
+    package="com.vader87.locatlayout"
+    android:versionCode="1"
+    android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="26"/>
+    <application/>
 </manifest>
