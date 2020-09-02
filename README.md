@@ -4,6 +4,10 @@
 
 [Demo Project](https://github.com/ChanUkLee/LogcatLayout-Demo.git)
 
+___
+
+## Settings
+
 ### build.gradle (project)
 ```xml
 repositories {
