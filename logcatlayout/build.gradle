@@ -45,8 +45,9 @@ publish {
     groupId = 'com.vader87.logcatlayout'
     artifactId = 'logcatlayout-lib'
     publishVersion = '0.0.1'
-    desc = 'https://github.com/ChanUkLee/LogcatLayout'
+    desc = 'Logcatlayout library'
     website = 'https://github.com/ChanUkLee/LogcatLayout'
     issueTracker = "https://github.com/ChanUkLee/LogcatLayout/issues"
     repository = "https://github.com/ChanUkLee/LogcatLayout.git"
+    override=true
 }
