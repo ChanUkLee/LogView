@@ -1,32 +1,29 @@
-# LogcatLayout
+# LogcatLayout [ ![Download](https://api.bintray.com/packages/chanuklee0227/maven/logcatlayout-lib/images/download.svg) ](https://bintray.com/chanuklee0227/maven/logcatlayout-lib/_latestVersion)
 
-### Logcat viewer in device
+## Description
 
-[Demo Project](https://github.com/ChanUkLee/LogcatLayout-Demo.git)
+## Adding to project
 
-___
+Add these dependencies to the `build.gradle:project` of the module:
 
-## Settings
-
-### build.gradle (project)
-```xml
+```groovy
 repositories {
-  ...
   jencter()
-  ...
 }
 ```
 
-### build.gradle (app)
-```xml
+Add these dependencies to the `build.gradle:app` of the module:
+
+```groovy
 dependencies {
-  ...
   implementation 'com.vader87.logcatlayout:logcatlayout-lib:{version}'
-  ...
 }
 ```
 
-### activity_main.xml
+## Simple usage
+
+Add logcatlayout in your activity.xml:
+
 ```xml
 ...
 <com.vader87.locatlayout.LogcatLayout
@@ -34,10 +31,10 @@ dependencies {
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         .../>
-...
 ```
 
-### MainActivity.java
+Call logcatlayout in your activity.java:
+
 ```	java
 protected void onCreate(Bundle savedInstanceState) {
   ...
@@ -48,3 +45,16 @@ protected void onCreate(Bundle savedInstanceState) {
   ...
 }
 ```
+
+Using LogcatLayout.d(string:TAG, string:msg) instead of Log.d(string:TAG, string:msg)
+Using LogcatLayout.w(string:TAG, string:msg) instead of Log.w(string:TAG, string:msg)
+Using LogcatLayout.e(string:TAG, string:msg) instead of Log.e(string:TAG, string:msg)
+
+## Links
+
+Here are a list of useful links:
+
+ * We always welcome people to contribute new features or bug fixes, [here is how](https://github.com/novoda/novoda/blob/master/CONTRIBUTING.md)
+ * If you have a problem check the [Issues Page](https://github.com/chanuklee/logcatlayout/issues) first to see if we are working on it
+ * For further usage or to delve more deeply checkout the [Project Wiki](https://github.com/chanuklee/logcatlayout/wiki)
+ * [Demo project](https://github.com/ChanUkLee/LogcatLayout-Demo)
