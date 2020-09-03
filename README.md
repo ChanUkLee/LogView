@@ -2,6 +2,8 @@
 
 ## Description
 
+I wanted to see logcat without a computer.
+
 ## Adding to project
 
 Add these dependencies to the `build.gradle:project` of the module:
@@ -54,7 +56,6 @@ Using LogcatLayout.e(string:TAG, string:msg) instead of Log.e(string:TAG, string
 
 Here are a list of useful links:
 
- * We always welcome people to contribute new features or bug fixes, [here is how](https://github.com/novoda/novoda/blob/master/CONTRIBUTING.md)
  * If you have a problem check the [Issues Page](https://github.com/chanuklee/logcatlayout/issues) first to see if we are working on it
  * For further usage or to delve more deeply checkout the [Project Wiki](https://github.com/chanuklee/logcatlayout/wiki)
  * [Demo project](https://github.com/ChanUkLee/LogcatLayout-Demo)
