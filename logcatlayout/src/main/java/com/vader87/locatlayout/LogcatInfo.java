@@ -70,4 +70,6 @@ class LogcatInfo {
     public boolean isExtend() {
         return _extend;
     }
+
+    public int getLogType() { return _logType; }
 }

@@ -13,11 +13,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.Space;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -43,6 +47,10 @@ public class LogcatLayout extends ViewGroup {
     private ScrollView _scrollView = null;
     private ListView _listView = null;
     private LogcatAdpater _logcatAdapter = null;
+
+    private TextView _txtError = null;
+    private TextView _txtWarn = null;
+    private TextView _txtInfo = null;
 
     private View _btnShowView = null;
     private View _headerView = null;
@@ -112,21 +120,65 @@ public class LogcatLayout extends ViewGroup {
         RelativeLayout headerLayout = new RelativeLayout(getContext());
         headerLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        RelativeLayout.LayoutParams btnHideParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        btnHideParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        btnHideParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+        RelativeLayout.LayoutParams headerLeftLayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        headerLeftLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        headerLeftLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
 
-        Button btnHide = new Button(getContext());
-        btnHide.setLayoutParams(btnHideParams);
-        btnHide.setText(getContext().getString(R.string.btn_hide));
+        LinearLayout headerLeftLayout = new LinearLayout(getContext());
+        headerLeftLayout.setOrientation(LinearLayout.HORIZONTAL);
+        headerLeftLayout.setLayoutParams(headerLeftLayoutParams);
+        headerLayout.addView(headerLeftLayout);
+
+        _txtInfo = new TextView(getContext());
+        _txtInfo.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        _txtInfo.setTextColor(Color.WHITE);
+        _txtInfo.setGravity(Gravity.CENTER_VERTICAL);
+        _txtInfo.setSingleLine(true);
+        _txtInfo.setCompoundDrawablesWithIntrinsicBounds(R.drawable.big_icon_log_info, 0, 0, 0);
+        headerLeftLayout.addView(_txtInfo);
+
+        Space spaceInfo = new Space(getContext());
+        spaceInfo.setLayoutParams(new ViewGroup.LayoutParams(10, ViewGroup.LayoutParams.MATCH_PARENT));
+        headerLeftLayout.addView(spaceInfo);
+
+        _txtWarn = new TextView(getContext());
+        _txtWarn.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        _txtWarn.setTextColor(Color.WHITE);
+        _txtWarn.setGravity(Gravity.CENTER_VERTICAL);
+        _txtWarn.setSingleLine(true);
+        _txtWarn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.big_icon_log_warn, 0, 0, 0);
+        headerLeftLayout.addView(_txtWarn);
+
+        Space spaceWarn = new Space(getContext());
+        spaceWarn.setLayoutParams(new ViewGroup.LayoutParams(10, ViewGroup.LayoutParams.MATCH_PARENT));
+        headerLeftLayout.addView(spaceWarn);
+
+        _txtError = new TextView(getContext());
+        _txtError.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        _txtError.setTextColor(Color.WHITE);
+        _txtError.setGravity(Gravity.CENTER_VERTICAL);
+        _txtError.setSingleLine(true);
+        _txtError.setCompoundDrawablesWithIntrinsicBounds(R.drawable.big_icon_log_error, 0, 0, 0);
+        headerLeftLayout.addView(_txtError);
+
+        Space spaceError = new Space(getContext());
+        spaceError.setLayoutParams(new ViewGroup.LayoutParams(10, ViewGroup.LayoutParams.MATCH_PARENT));
+        headerLeftLayout.addView(spaceError);
+
+        UpdateCountTxt();
+
+        //ImageButton btnHide = new ImageButton(getContext(), null, android.R.attr.borderlessButtonStyle);
+        ImageButton btnHide = new ImageButton(getContext());
+        btnHide.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        btnHide.setImageResource(R.drawable.normal_icon_btn_close);
         btnHide.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 onAnimation(false);
             }
         });
-        headerLayout.addView(btnHide);
+        headerLeftLayout.addView(btnHide);
+
         _headerView = headerLayout;
 
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -273,6 +325,7 @@ public class LogcatLayout extends ViewGroup {
         _logcatAdapter.add(new LogcatInfo(getContext(), logType, tag, msg));
         _logcatAdapter.notifyDataSetChanged();
         setListViewHeightBasedOnChildren(_listView);
+        UpdateCountTxt();
     }
 
     public void setListViewHeightBasedOnChildren(ListView listView) {
@@ -291,6 +344,13 @@ public class LogcatLayout extends ViewGroup {
 
     public void removeAll() {
         _logcatAdapter.clear();
+        UpdateCountTxt();
+    }
+
+    private void UpdateCountTxt() {
+        _txtInfo.setText(Integer.toString(_logcatAdapter.getLogTypeCount(Log.DEBUG)));
+        _txtWarn.setText(Integer.toString(_logcatAdapter.getLogTypeCount(Log.WARN)));
+        _txtError.setText(Integer.toString(_logcatAdapter.getLogTypeCount(Log.ERROR)));
     }
 
     @Override
