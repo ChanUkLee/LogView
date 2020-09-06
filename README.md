@@ -28,8 +28,8 @@ Add logcatlayout in your activity.xml:
 
 ```xml
 ...
-<com.vader87.locatlayout.LogcatLayout
-        android:id="@+id/logcatLayout"
+<com.vader87.view.LogView
+        android:id="@+id/logview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         .../>
@@ -38,24 +38,19 @@ Add logcatlayout in your activity.xml:
 Call logcatlayout in your activity.java:
 
 ```	java
+import com.vader87.view.*;
+
 protected void onCreate(Bundle savedInstanceState) {
   ...
-  com.vader87.locatlayout.LogcatLayout logcatLayout = (com.vader87.locatlayout.LogcatLayout)findViewById(R.id.logcatLayout);
-  logcatLayout.d("MainActivity", "Debug");
-  logcatLayout.w("MainActivity", "Warn");
-  logcatLayout.e("MainActivity", "Error");
+  LogView logcatLayout = (LogView)findViewById(R.id.logview);
   ...
 }
 ```
-
-Using LogcatLayout.d(string:TAG, string:msg) instead of Log.d(string:TAG, string:msg)
-Using LogcatLayout.w(string:TAG, string:msg) instead of Log.w(string:TAG, string:msg)
-Using LogcatLayout.e(string:TAG, string:msg) instead of Log.e(string:TAG, string:msg)
 
 ## Links
 
 Here are a list of useful links:
 
- * If you have a problem check the [Issues Page](https://github.com/chanuklee/logcatlayout/issues) first to see if we are working on it
- * For further usage or to delve more deeply checkout the [Project Wiki](https://github.com/chanuklee/logcatlayout/wiki)
- * [Demo project](https://github.com/ChanUkLee/LogcatLayout-Demo)
+ * If you have a problem check the [Issues Page](https://github.com/chanuklee/logview/issues) first to see if we are working on it
+ * For further usage or to delve more deeply checkout the [Project Wiki](https://github.com/chanuklee/logview/wiki)
+ * [Demo project](https://github.com/ChanUkLee/LogView-Demo)
