@@ -28,8 +28,8 @@ Add logcatlayout in your activity.xml:
 
 ```xml
 ...
-<com.vader87.locatlayout.LogcatLayout
-        android:id="@+id/logcatLayout"
+<com.vader87.view.LogView
+        android:id="@+id/logview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         .../>
@@ -38,19 +38,14 @@ Add logcatlayout in your activity.xml:
 Call logcatlayout in your activity.java:
 
 ```	java
+import com.vader87.view.*;
+
 protected void onCreate(Bundle savedInstanceState) {
   ...
-  com.vader87.locatlayout.LogcatLayout logcatLayout = (com.vader87.locatlayout.LogcatLayout)findViewById(R.id.logcatLayout);
-  logcatLayout.d("MainActivity", "Debug");
-  logcatLayout.w("MainActivity", "Warn");
-  logcatLayout.e("MainActivity", "Error");
+  LogView logcatLayout = (LogView)findViewById(R.id.logview);
   ...
 }
 ```
-
-Using LogcatLayout.d(string:TAG, string:msg) instead of Log.d(string:TAG, string:msg)
-Using LogcatLayout.w(string:TAG, string:msg) instead of Log.w(string:TAG, string:msg)
-Using LogcatLayout.e(string:TAG, string:msg) instead of Log.e(string:TAG, string:msg)
 
 ## Links
 
