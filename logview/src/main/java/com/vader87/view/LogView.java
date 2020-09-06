@@ -3,10 +3,13 @@ package com.vader87.view;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -20,6 +23,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,6 +31,9 @@ import com.vader87.view.service.ILogBinder;
 import com.vader87.view.service.ILogCallback;
 import com.vader87.view.service.LogService;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 // How to create a release android library package (aar) in Android Studio (not debug)
@@ -111,9 +118,10 @@ public class LogView extends ViewGroup {
                 } else if (id == R.id.imagebutton_console_fotter_lock) {
                     Toast.makeText(getContext(), "not ready lock", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.imagebutton_console_fotter_copy) {
-                    Toast.makeText(getContext(), "not ready copy", Toast.LENGTH_SHORT).show();
+                    clipboard();
                 } else if (id == R.id.imagebutton_console_fotter_mail) {
-                    Toast.makeText(getContext(), "not ready mail", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(), "not ready email", Toast.LENGTH_SHORT).show();
+                    sendEmail("chanuklee0227@gmail.com");
                 } else if (id == R.id.imagebutton_console_fotter_close) {
                     dismiss();
                 }
@@ -142,6 +150,81 @@ public class LogView extends ViewGroup {
     private void dismiss() {
         onShowOrDismissAnimation(false);
     }
+
+    private String getFullLog() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i <_logcatInfoList.size();i ++) {
+            stringBuilder.append(_logcatInfoList.get(i).getLog());
+            stringBuilder.append("\\n");
+        }
+        return stringBuilder.toString();
+    }
+
+    private void saveLog() {
+        writeToFile("logs", getFullLog());
+    }
+
+    private void writeToFile(String filename, String content) {
+        try {
+            File dir = new File(getContext().getFilesDir().getAbsolutePath(), "logs");
+            File file = new File(dir, "log.txt");
+            file.createNewFile();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(getContext().openFileOutput(file.getPath(), Context.MODE_APPEND));
+            outputStreamWriter.write(content);
+            outputStreamWriter.close();
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT);
+        }
+    }
+
+    private void clipboard() {
+        ClipboardManager clipboardManager = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("full_log", getFullLog());
+        clipboardManager.setPrimaryClip(clipData);
+        Toast.makeText(getContext(), "Copy to clipboard", Toast.LENGTH_SHORT).show();
+    }
+
+    private void sendEmail(String sendTo) {
+        Log.d(TAG, "sendEmail");
+        saveLog();
+        File dir = new File(getContext().getFilesDir().getAbsolutePath(), "logs");
+        File file = new File(dir, "log.txt");
+        if (file.exists() == false) {
+            Log.e(TAG,"file not exists");
+        }
+        if (file.canRead() == false) {
+            Log.e(TAG, "file cannot read");
+        }
+        Uri fileUri = null;
+        try {
+            //fileUri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".provider", file);
+            fileUri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", file);
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT);
+        }
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        //emailIntent.setType("text/html");
+        //emailIntent.setType("text/plain");
+        //emailIntent.setPackage("com.google.android.gm");
+        emailIntent.setType("vnd.android.cursor.dir/email");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {sendTo});
+        if (fileUri != null) {
+            emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+        }
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your subject");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message goes here");
+        //emailIntent.putExtra(Intent.EXTRA_CC, CC);
+        try {
+            Log.d(TAG, "sendEmail");
+            getContext().startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+        } catch (android.content.ActivityNotFoundException e) {
+            Log.e(TAG, e.getMessage());
+            Toast.makeText(getContext(), "There is no email client installed.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     protected void onShowOrDismissAnimation(final boolean isShow) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();

@@ -65,8 +65,8 @@ class LogcatInfo {
                     Counter.Debug++;
                     break;
             }
-            int index = _log.indexOf(":", matcherPackage.end() + 1);
-            _summary = _log.substring(index);
+            int index = _log.indexOf(":", matcherPackage.end());
+            _summary = _log.substring(index + 2);
         }
     }
 

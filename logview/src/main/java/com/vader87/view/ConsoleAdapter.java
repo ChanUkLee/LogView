@@ -6,8 +6,10 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,33 +21,22 @@ import java.util.ArrayList;
 // Creating a ListView with custom list items programmatically in Android - no xml list item layout
 // https://stackoverflow.com/questions/12784695/creating-a-listview-with-custom-list-items-programmatically-in-android-no-xml
 class ConsoleAdpater extends RecyclerView.Adapter<ConsoleAdpater.ConsoleItemViewHolder> {
+
+    private static final String TAG = "ConsoleAdapter";
     private ArrayList<LogcatInfo> _resource = null;
 
     class ConsoleItemViewHolder extends RecyclerView.ViewHolder {
+        public View _view = null;
         private TextView _textView = null;
-        private LogcatInfo _logcatInfo = null;
-        public ConsoleItemViewHolder(TextView textView) {
-            super(textView);
-            _textView = textView;
-            _textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (_logcatInfo != null) {
-                        ConsoleDialog.getInstance(_logcatInfo).show(((Activity)getContext()).getFragmentManager(), ConsoleDialog.TAG);
-                    } else {
-                        Toast.makeText(getContext(),"Null Error!", Toast.LENGTH_SHORT);
-                    }
-
-                }
-            });
+        public ConsoleItemViewHolder(View view) {
+            super(view);
+            _view = view;
+            //_view.setOnClickListener(this);
+            _textView = (TextView)view.findViewById(R.id.textview_console_recycleview_item);
         }
 
         public Context getContext() {
             return _textView.getContext();
-        }
-
-        public void setLogcatInfo(LogcatInfo logcatInfo) {
-            _logcatInfo = logcatInfo;
         }
 
         public void setBackgroundColor(int color) {
@@ -83,19 +74,39 @@ class ConsoleAdpater extends RecyclerView.Adapter<ConsoleAdpater.ConsoleItemView
     public ConsoleItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ConsoleItemViewHolder viewHolder = null;
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_console_recycleview_item, parent, false);
-        TextView textView = (TextView)view.findViewById(R.id.textview_console_recycleview_item);
-        viewHolder = new ConsoleItemViewHolder(textView);
+        viewHolder = new ConsoleItemViewHolder(view);
         return viewHolder;
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
-    public void onBindViewHolder(@NonNull ConsoleItemViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ConsoleItemViewHolder holder, final int position) {
         ConsoleItemViewHolder viewHoler = (ConsoleItemViewHolder)holder;
         viewHoler.setBackgroundColor((position % 2 == 0) ? viewHoler.getContext().getColor(R.color.colorConsoleListViewTextBackgroundA) : viewHoler.getContext().getColor(R.color.colorConsoleListViewTextBackgroundB));
         viewHoler.setText(_resource.get(position).getSummary());
         viewHoler.setIcon(getLogTypeIcon(_resource.get(position).getLogType()));
-        viewHoler.setLogcatInfo(_resource.get(position));
+        //viewHoler._view.setOnClickListener(new View.OnClickListener() {
+            //@Override
+            //public void onClick(View v) {
+                //Log.d(TAG, "onClick");
+                //ConsoleDialog.getInstance(_resource.get(position)).show(((Activity)holder.getContext()).getFragmentManager(), ConsoleDialog.TAG);
+            //}
+        //});
+        viewHoler._view.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN)
+                    return false;
+
+                Log.d(TAG, "onTouch " + event.getAction());
+                if (ConsoleDialog.isShow == false) {
+                    // 0 ACTION_DOWN
+                    // 3 ACTION_CANCEL
+                    ConsoleDialog.getInstance(_resource.get(position)).show(((Activity)holder.getContext()).getFragmentManager(), ConsoleDialog.TAG);
+                }
+                return true;
+            }
+        });
     }
 
     @Override

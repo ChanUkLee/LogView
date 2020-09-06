@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    RecyclerView single click not working but works when click twice
+    https://stackoverflow.com/questions/38242530/recyclerview-single-click-not-working-but-works-when-click-twice
+    -->
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textview_console_recycleview_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:singleLine="true"
+    android:textSize="15dp"
+    android:clickable="true"
+    android:padding="5dp"
+    android:textColor="@color/colorConsoleListViewText"/>

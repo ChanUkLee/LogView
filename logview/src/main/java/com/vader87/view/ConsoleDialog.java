@@ -1,6 +1,7 @@
 package com.vader87.view;
 
 import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 public class ConsoleDialog extends DialogFragment implements View.OnClickListener {
 
     public static final String TAG = "dialog_console";
+    public static boolean isShow = false;
     public ConsoleDialog() {}
     public static ConsoleDialog getInstance(LogcatInfo logcatInfo) {
         ConsoleDialog consoleDialog = new ConsoleDialog();
@@ -42,6 +44,18 @@ public class ConsoleDialog extends DialogFragment implements View.OnClickListene
                 break;
         }
         return R.drawable.dialog_icon_debug;
+    }
+
+    @Override
+    public void show(FragmentManager manager, String tag) {
+        super.show(manager, tag);
+        isShow = true;
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        isShow = false;
     }
 
     @Override
