@@ -51,6 +51,6 @@ protected void onCreate(Bundle savedInstanceState) {
 
 Here are a list of useful links:
 
- * If you have a problem check the [Issues Page](https://github.com/chanuklee/logcatlayout/issues) first to see if we are working on it
- * For further usage or to delve more deeply checkout the [Project Wiki](https://github.com/chanuklee/logcatlayout/wiki)
+ * If you have a problem check the [Issues Page](https://github.com/chanuklee/logview/issues) first to see if we are working on it
+ * For further usage or to delve more deeply checkout the [Project Wiki](https://github.com/chanuklee/logview/wiki)
  * [Demo project](https://github.com/ChanUkLee/LogcatLayout-Demo)
