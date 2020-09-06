@@ -1,4 +1,4 @@
-# LogcatLayout [ ![Download](https://api.bintray.com/packages/chanuklee0227/maven/logcatlayout-lib/images/download.svg) ](https://bintray.com/chanuklee0227/maven/logcatlayout-lib/_latestVersion)
+# LogView [ ![Download](https://api.bintray.com/packages/chanuklee0227/maven/logview-lib/images/download.svg) ](https://bintray.com/chanuklee0227/maven/logview-lib/_latestVersion)
 
 ## Description
 
