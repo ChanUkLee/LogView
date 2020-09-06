@@ -47,8 +47,8 @@ publish {
     artifactId = 'logview-lib'
     publishVersion = '0.0.3'
     desc = 'LogView library'
-    website = 'https://github.com/ChanUkLee/LogcatLayout'
-    issueTracker = "https://github.com/ChanUkLee/LogcatLayout/issues"
-    repository = "https://github.com/ChanUkLee/LogcatLayout.git"
+    website = 'https://github.com/ChanUkLee/LogView'
+    issueTracker = "https://github.com/ChanUkLee/LogView/issues"
+    repository = "https://github.com/ChanUkLee/LogView.git"
     override=true
 }
