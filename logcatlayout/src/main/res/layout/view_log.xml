@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center">
+    <Button
+        android:id="@+id/button_log_show"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_show"/>
+    <LinearLayout
+        android:id="@+id/linearlayout_view_log"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorConsoleListViewBackground"
+        android:alpha="0.75">
+        <com.vader87.view.ConsoleHeaderView
+            android:id="@+id/consoleheaderview_view_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <com.vader87.view.ConsoleRecyclerView
+            android:id="@+id/consolerecyclerview_view_log"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+        </com.vader87.view.ConsoleRecyclerView>
+        <com.vader87.view.ConsoleFooterView
+            android:id="@+id/consolefooterview_view_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</merge>

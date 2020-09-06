@@ -7,11 +7,15 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    // https://stackoverrun.com/ko/q/10682618
+    //compileDebugAidl "com.vader.logcatlayout/ILogBinder.aidl"
+    //compileReleaseAidl "com.vader.logcatlayout/ILogBinder.aidl"
+
     defaultConfig {
         minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
-        versionName '0.0.2'
+        versionName '0.0.3'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // apk파일 이름에 version 정보가 들어가도록 내용 추가
@@ -32,16 +36,17 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
 }
 
 apply plugin: 'com.novoda.bintray-release'
 
 publish {
     userOrg = 'chanuklee0227'
-    groupId = 'com.vader87.logcatlayout'
-    artifactId = 'logcatlayout-lib'
-    publishVersion = '0.0.2'
-    desc = 'Logcatlayout library'
+    groupId = 'com.vader87.view'
+    artifactId = 'logview-lib'
+    publishVersion = '0.0.3'
+    desc = 'LogView library'
     website = 'https://github.com/ChanUkLee/LogcatLayout'
     issueTracker = "https://github.com/ChanUkLee/LogcatLayout/issues"
     repository = "https://github.com/ChanUkLee/LogcatLayout.git"

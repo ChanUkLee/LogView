@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:drawable="@drawable/icon_btn_close"
-        android:width="30dp"
-        android:height="30dp"
+        android:drawable="@drawable/icon_debug"
+        android:width="15dp"
+        android:height="15dp"
         />
 </layer-list>
