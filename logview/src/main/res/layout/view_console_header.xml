@@ -3,11 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:color="@color/colorConsoleHeaderBackground">
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:orientation="horizontal">
         <TextView
@@ -17,8 +16,8 @@
             android:textColor="@color/colorConsoleHeaderEnableText"
             android:gravity="center_vertical"
             android:singleLine="true"
-            android:text="0"
-            android:drawableLeft="@drawable/header_icon_debug"/>
+            android:text="@string/view_console_header_counter"
+            android:drawableStart="@drawable/header_icon_debug"/>
         <Space
             android:layout_width="10dp"
             android:layout_height="match_parent"/>
@@ -29,8 +28,8 @@
             android:textColor="@color/colorConsoleHeaderEnableText"
             android:gravity="center_vertical"
             android:singleLine="true"
-            android:text="0"
-            android:drawableLeft="@drawable/header_icon_warn"/>
+            android:text="@string/view_console_header_counter"
+            android:drawableStart="@drawable/header_icon_warn"/>
         <Space
             android:layout_width="10dp"
             android:layout_height="match_parent"/>
@@ -41,8 +40,8 @@
             android:textColor="@color/colorConsoleHeaderEnableText"
             android:gravity="center_vertical"
             android:singleLine="true"
-            android:text="0"
-            android:drawableLeft="@drawable/header_icon_error"/>
+            android:text="@string/view_console_header_counter"
+            android:drawableStart="@drawable/header_icon_error"/>
         <Space
             android:layout_width="10dp"
             android:layout_height="match_parent"/>

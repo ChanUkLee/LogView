@@ -9,12 +9,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -23,16 +23,16 @@ import java.util.ArrayList;
 class ConsoleAdpater extends RecyclerView.Adapter<ConsoleAdpater.ConsoleItemViewHolder> {
 
     private static final String TAG = "ConsoleAdapter";
-    private ArrayList<LogcatInfo> _resource = null;
+    private ArrayList<ConsoleLog> _resource = null;
 
     class ConsoleItemViewHolder extends RecyclerView.ViewHolder {
-        public View _view = null;
+        public View _itemView = null;
         private TextView _textView = null;
-        public ConsoleItemViewHolder(View view) {
-            super(view);
-            _view = view;
-            //_view.setOnClickListener(this);
-            _textView = (TextView)view.findViewById(R.id.textview_console_recycleview_item);
+        public ConsoleItemViewHolder(View itemView) {
+            super(itemView);
+            _itemView = itemView;
+            _textView = (TextView)itemView.findViewById(R.id.textview_console_recycleview_item);
+            _textView.setClickable(false);
         }
 
         public Context getContext() {
@@ -40,7 +40,7 @@ class ConsoleAdpater extends RecyclerView.Adapter<ConsoleAdpater.ConsoleItemView
         }
 
         public void setBackgroundColor(int color) {
-            _textView.setBackgroundColor(color);
+            _itemView.setBackgroundColor(color);
         }
 
         public void setText(String text) {
@@ -52,7 +52,7 @@ class ConsoleAdpater extends RecyclerView.Adapter<ConsoleAdpater.ConsoleItemView
         }
     }
 
-    public ConsoleAdpater(ArrayList<LogcatInfo> resource) {
+    public ConsoleAdpater(ArrayList<ConsoleLog> resource) {
         _resource = resource;
     }
 
@@ -72,9 +72,9 @@ class ConsoleAdpater extends RecyclerView.Adapter<ConsoleAdpater.ConsoleItemView
     @NonNull
     @Override
     public ConsoleItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ConsoleItemViewHolder viewHolder = null;
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_console_recycleview_item, parent, false);
-        viewHolder = new ConsoleItemViewHolder(view);
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        View view = layoutInflater.inflate(R.layout.view_console_recycleview_item, parent, false);
+        ConsoleItemViewHolder viewHolder = new ConsoleItemViewHolder(view);
         return viewHolder;
     }
 
@@ -85,25 +85,22 @@ class ConsoleAdpater extends RecyclerView.Adapter<ConsoleAdpater.ConsoleItemView
         viewHoler.setBackgroundColor((position % 2 == 0) ? viewHoler.getContext().getColor(R.color.colorConsoleListViewTextBackgroundA) : viewHoler.getContext().getColor(R.color.colorConsoleListViewTextBackgroundB));
         viewHoler.setText(_resource.get(position).getSummary());
         viewHoler.setIcon(getLogTypeIcon(_resource.get(position).getLogType()));
-        //viewHoler._view.setOnClickListener(new View.OnClickListener() {
-            //@Override
-            //public void onClick(View v) {
-                //Log.d(TAG, "onClick");
-                //ConsoleDialog.getInstance(_resource.get(position)).show(((Activity)holder.getContext()).getFragmentManager(), ConsoleDialog.TAG);
-            //}
-        //});
-        viewHoler._view.setOnTouchListener(new View.OnTouchListener() {
+        viewHoler._itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick");
+            }
+        });
+        viewHoler._itemView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Log.d(TAG, "onFocusChange:" + hasFocus);
+            }
+        });
+        viewHoler._itemView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN)
-                    return false;
-
-                Log.d(TAG, "onTouch " + event.getAction());
-                if (ConsoleDialog.isShow == false) {
-                    // 0 ACTION_DOWN
-                    // 3 ACTION_CANCEL
-                    ConsoleDialog.getInstance(_resource.get(position)).show(((Activity)holder.getContext()).getFragmentManager(), ConsoleDialog.TAG);
-                }
+                Log.d(TAG, "onTouch:" + event.getAction());
                 return true;
             }
         });

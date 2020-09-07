@@ -5,40 +5,14 @@ import android.util.Log;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class LogcatInfo {
-    private static final String TAG = "LogcatInfo";
-
-    public static class Counter {
-        public static void clear() {
-            Debug = 0;
-            Warn = 0;
-            Error = 0;
-        }
-
-        public static int getCount(int logType) {
-            switch (logType) {
-                case Log.DEBUG:
-                    return Debug;
-                case Log.ERROR:
-                    return Error;
-                case Log.WARN:
-                    return Warn;
-                default:
-                    break;
-            }
-            return 0;
-        }
-
-        public static int Debug = 0;
-        public static int Warn = 0;
-        public static int Error = 0;
-    }
+class ConsoleLog {
+    private static final String TAG = "ConsoleLog";
 
     private int _logType = 0;
     private String _summary = "";
     private String _log = "";
 
-    public LogcatInfo(String msg) {
+    public ConsoleLog(String msg) {
         _log = msg;
 
         String regexDate = "\\d{2}-\\d{2}";
@@ -53,16 +27,13 @@ class LogcatInfo {
             switch (matcherPackage.group()) {
                 case "E":
                     _logType = Log.ERROR;
-                    Counter.Error++;
                     break;
                 case "W":
                     _logType = Log.WARN;
-                    Counter.Warn++;
                     break;
                 case "D":
                 default:
                     _logType = Log.DEBUG;
-                    Counter.Debug++;
                     break;
             }
             int index = _log.indexOf(":", matcherPackage.end());

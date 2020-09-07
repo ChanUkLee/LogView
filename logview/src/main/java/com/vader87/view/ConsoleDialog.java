@@ -18,17 +18,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Objects;
+
 public class ConsoleDialog extends DialogFragment implements View.OnClickListener {
 
     public static final String TAG = "dialog_console";
     public static boolean isShow = false;
-    public ConsoleDialog() {}
-    public static ConsoleDialog getInstance(LogcatInfo logcatInfo) {
+
+    public static ConsoleDialog getInstance(ConsoleLog consoleLog) {
         ConsoleDialog consoleDialog = new ConsoleDialog();
         Bundle args = new Bundle();
-        args.putInt("type", logcatInfo.getLogType());
-        args.putString("summary", logcatInfo.getSummary());
-        args.putString("log", logcatInfo.getLog());
+        args.putInt("type", consoleLog.getLogType());
+        args.putString("summary", consoleLog.getSummary());
+        args.putString("log", consoleLog.getLog());
         consoleDialog.setArguments(args);
         return consoleDialog;
     }
@@ -88,11 +90,12 @@ public class ConsoleDialog extends DialogFragment implements View.OnClickListene
     public void onResume() {
         super.onResume();
         WindowManager windowManager = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
+        assert windowManager != null;
         Display display = windowManager.getDefaultDisplay();
         Point point = new Point();
         display.getSize(point);
 
-        getDialog().getWindow().setLayout((int)(point.x * 0.9), (int)(point.y * 0.9));
+        Objects.requireNonNull(getDialog().getWindow()).setLayout((int)(point.x * 0.9), (int)(point.y * 0.9));
     }
 
     @Override
@@ -101,6 +104,7 @@ public class ConsoleDialog extends DialogFragment implements View.OnClickListene
         if (id == R.id.button_dialog_console_copy) {
             ClipboardManager clipboardManager = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clipData = ClipData.newPlainText("stacktrace", getArguments().getString("stacktrace"));
+            assert clipboardManager != null;
             clipboardManager.setPrimaryClip(clipData);
             Toast.makeText(getContext(), "Copy to clipboard", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.button_dialog_console_close) {

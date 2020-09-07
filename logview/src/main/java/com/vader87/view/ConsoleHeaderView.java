@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 class ConsoleHeaderView extends RelativeLayout {
 
+    private static final String TAG = "ConsoleHeaderView";
+
     private TextView _textViewError = null;
     private TextView _textViewWarn = null;
     private TextView _textViewDebug = null;
@@ -73,5 +75,27 @@ class ConsoleHeaderView extends RelativeLayout {
 
     private void setErrorCount(int count) {
         _textViewError.setText(String.valueOf(count));
+    }
+
+    public void setOnClickListener(View.OnClickListener onClickListener) {
+        _textViewDebug.setOnClickListener(onClickListener);
+        _textViewWarn.setOnClickListener(onClickListener);
+        _textViewError.setOnClickListener(onClickListener);
+    }
+
+    public void setIgnoreDebug(boolean ignore) {
+        setTextViewColor(_textViewDebug, ignore);
+    }
+
+    public void setIgnoreWarn(boolean ignore) {
+        setTextViewColor(_textViewWarn, ignore);
+    }
+
+    public void setIgnoreError(boolean ignore) {
+        setTextViewColor(_textViewError, ignore);
+    }
+
+    private void setTextViewColor(TextView textView, boolean ignore) {
+        textView.setTextColor(ignore ? getContext().getColor(R.color.colorConsoleHeaderDisalbeText) : getContext().getColor(R.color.colorConsoleHeaderEnableText));
     }
 }

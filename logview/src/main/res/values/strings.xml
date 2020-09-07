@@ -4,4 +4,5 @@
     <string name="single_log_type_string_error">E</string>
     <string name="btn_show">Show</string>
     <string name="btn_hide">hide</string>
+    <string name="view_console_header_counter">0</string>
 </resources>

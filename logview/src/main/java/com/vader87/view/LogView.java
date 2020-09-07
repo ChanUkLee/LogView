@@ -9,6 +9,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
@@ -17,6 +19,7 @@ import android.os.RemoteException;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,9 +35,14 @@ import com.vader87.view.service.ILogCallback;
 import com.vader87.view.service.LogService;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 // How to create a release android library package (aar) in Android Studio (not debug)
 // https://stackoverflow.com/questions/27646262/how-to-create-a-release-android-library-package-aar-in-android-studio-not-deb
@@ -50,7 +58,7 @@ import java.util.ArrayList;
 //
 // Want to be
 // https://assetstore.unity.com/packages/tools/gui/lunar-mobile-console-free-82881?locale=ko-KR
-public class LogView extends ViewGroup {
+public class LogView extends LinearLayout {
 
     private final String TAG = "LogView";
 
@@ -64,7 +72,14 @@ public class LogView extends ViewGroup {
     private ConsoleAdpater _recyclerAdapter = null;
     private RecyclerView.LayoutManager _layoutManager = null;
 
-    private ArrayList<LogcatInfo> _logcatInfoList = null;
+    private boolean _ignoreConsoleLogDebug = false;
+    private boolean _ignoreConsoleLogWarn = false;
+    private boolean _ignoreConsoleLogError = false;
+    private int _consoleLogDebugCount = 0;
+    private int _consoleLogWarnCount = 0;
+    private int _consoleLogErrorCount = 0;
+    private ArrayList<ConsoleLog> _consoleLogList = null;
+    private ArrayList<ConsoleLog> _consoleLogViewList = null;
 
     public LogView(Context context) {
         super(context);
@@ -90,7 +105,8 @@ public class LogView extends ViewGroup {
     // https://myksb1223.github.io/develop_diary/2019/03/23/CustomView-in-Android.html
     protected void initView() {
         // Custom ArrayAdapter
-        _logcatInfoList = new ArrayList<LogcatInfo>();
+        _consoleLogList = new ArrayList<ConsoleLog>();
+        _consoleLogViewList = new ArrayList<ConsoleLog>();
 
         View view = View.inflate(getContext(), R.layout.view_log, this);
 
@@ -99,6 +115,7 @@ public class LogView extends ViewGroup {
 
             @Override
             public void onClick(View v) {
+                Toast.makeText(getContext(), "btn show onClick", Toast.LENGTH_SHORT);
                 show();
             }
         });
@@ -107,9 +124,28 @@ public class LogView extends ViewGroup {
         _linearLayout.getLayoutParams().height = 0;
 
         _headerView = (ConsoleHeaderView)view.findViewById(R.id.consoleheaderview_view_log);
+        _headerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int id = v.getId();
+                if (id == R.id.textview_console_header_debug) {
+                    _ignoreConsoleLogDebug = !_ignoreConsoleLogDebug;
+                    _headerView.setIgnoreDebug(_ignoreConsoleLogDebug);
+                    rebuildConsoleLogViewList();
+                } else if (id == R.id.textview_console_header_warn) {
+                    _ignoreConsoleLogWarn = !_ignoreConsoleLogWarn;
+                    _headerView.setIgnoreDebug(_ignoreConsoleLogWarn);
+                    rebuildConsoleLogViewList();
+                } else if (id == R.id.textview_console_header_error) {
+                    _ignoreConsoleLogError = !_ignoreConsoleLogError;
+                    _headerView.setIgnoreDebug(_ignoreConsoleLogError);
+                    rebuildConsoleLogViewList();
+                }
+            }
+        });
+
         _footerView = (ConsoleFooterView)view.findViewById(R.id.consolefooterview_view_log);
         _footerView.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 int id = v.getId();
@@ -121,7 +157,7 @@ public class LogView extends ViewGroup {
                     clipboard();
                 } else if (id == R.id.imagebutton_console_fotter_mail) {
                     //Toast.makeText(getContext(), "not ready email", Toast.LENGTH_SHORT).show();
-                    sendEmail("chanuklee0227@gmail.com");
+                    sendEmail();
                 } else if (id == R.id.imagebutton_console_fotter_close) {
                     dismiss();
                 }
@@ -134,97 +170,12 @@ public class LogView extends ViewGroup {
         _layoutManager = new LinearLayoutManager(getContext());
         _recyclerView.setLayoutManager(_layoutManager);
 
-        _recyclerAdapter = new ConsoleAdpater(_logcatInfoList);
+        _recyclerAdapter = new ConsoleAdpater(_consoleLogViewList);
         _recyclerView.setAdapter(_recyclerAdapter);
 
         bind();
         //addView(_rootLayout);
     }
-
-    // Show action
-    public void show() {
-        onShowOrDismissAnimation(true);
-    }
-
-    // Hide action
-    private void dismiss() {
-        onShowOrDismissAnimation(false);
-    }
-
-    private String getFullLog() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i <_logcatInfoList.size();i ++) {
-            stringBuilder.append(_logcatInfoList.get(i).getLog());
-            stringBuilder.append("\\n");
-        }
-        return stringBuilder.toString();
-    }
-
-    private void saveLog() {
-        writeToFile("logs", getFullLog());
-    }
-
-    private void writeToFile(String filename, String content) {
-        try {
-            File dir = new File(getContext().getFilesDir().getAbsolutePath(), "logs");
-            File file = new File(dir, "log.txt");
-            file.createNewFile();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(getContext().openFileOutput(file.getPath(), Context.MODE_APPEND));
-            outputStreamWriter.write(content);
-            outputStreamWriter.close();
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT);
-        }
-    }
-
-    private void clipboard() {
-        ClipboardManager clipboardManager = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText("full_log", getFullLog());
-        clipboardManager.setPrimaryClip(clipData);
-        Toast.makeText(getContext(), "Copy to clipboard", Toast.LENGTH_SHORT).show();
-    }
-
-    private void sendEmail(String sendTo) {
-        Log.d(TAG, "sendEmail");
-        saveLog();
-        File dir = new File(getContext().getFilesDir().getAbsolutePath(), "logs");
-        File file = new File(dir, "log.txt");
-        if (file.exists() == false) {
-            Log.e(TAG,"file not exists");
-        }
-        if (file.canRead() == false) {
-            Log.e(TAG, "file cannot read");
-        }
-        Uri fileUri = null;
-        try {
-            //fileUri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".provider", file);
-            fileUri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", file);
-        } catch (IllegalArgumentException e) {
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT);
-        }
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        //emailIntent.setType("text/html");
-        //emailIntent.setType("text/plain");
-        //emailIntent.setPackage("com.google.android.gm");
-        emailIntent.setType("vnd.android.cursor.dir/email");
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {sendTo});
-        if (fileUri != null) {
-            emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-        }
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your subject");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message goes here");
-        //emailIntent.putExtra(Intent.EXTRA_CC, CC);
-        try {
-            Log.d(TAG, "sendEmail");
-            getContext().startActivity(Intent.createChooser(emailIntent, "Send mail..."));
-        } catch (android.content.ActivityNotFoundException e) {
-            Log.e(TAG, e.getMessage());
-            Toast.makeText(getContext(), "There is no email client installed.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
 
     protected void onShowOrDismissAnimation(final boolean isShow) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
@@ -245,17 +196,15 @@ public class LogView extends ViewGroup {
             public void onAnimationStart(Animator animation) {
                 if (isShow) {
                     _btnShowView.setVisibility(GONE);
-                    //_listView.addHeaderView(_headerView);
-                    //_listView.addFooterView(_footerView);
+                    _btnShowView.setEnabled(false);
                 }
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (!isShow) {
-                    //_listView.removeHeaderView(_headerView);
-                    //_listView.removeFooterView(_footerView);
                     _btnShowView.setVisibility(VISIBLE);
+                    _btnShowView.setEnabled(true);
                 }
             }
 
@@ -273,81 +222,140 @@ public class LogView extends ViewGroup {
         animator.start();
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int count = getChildCount();
-
-        int maxHeight = 0;
-        int maxWidth = 0;
-
-        int y = 0;
-
-        // Find out how big everyone wants to be
-        measureChildren(widthMeasureSpec, heightMeasureSpec);
-
-        // Find rightmost and bottom-most child
-        for (int i = 0; i < count; i++) {
-            View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-                int childRight;
-                int childBottom;
-
-                LogView.LayoutParams lp
-                        = (LogView.LayoutParams) child.getLayoutParams();
-
-                childRight = child.getMeasuredWidth();
-                childBottom = y + child.getMeasuredHeight();
-
-                maxWidth = Math.max(maxWidth, childRight);
-                maxHeight = Math.max(maxHeight, childBottom);
-
-                y += child.getMeasuredHeight();
-            }
-        }
-
-        // Account for padding too
-        maxWidth += getPaddingLeft() + getPaddingRight();
-        maxHeight += getPaddingTop() + getPaddingBottom();
-
-        // Check against minimum height and width
-        maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
-        maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
-
-        setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
-                resolveSizeAndState(maxHeight, heightMeasureSpec, 0));
+    //region Button Functions
+    // Show action
+    public void show() {
+        onShowOrDismissAnimation(true);
     }
 
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int count = getChildCount();
-
-        int y = 0;
-
-        for (int i = 0; i < count; i++) {
-            View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-
-                LogView.LayoutParams lp =
-                        (LogView.LayoutParams) child.getLayoutParams();
-
-                int childLeft = getPaddingLeft();
-                int childTop = getPaddingTop() + y;
-                child.layout(childLeft, childTop,
-                        childLeft + child.getMeasuredWidth(),
-                        childTop + child.getMeasuredHeight());
-
-                y += child.getMeasuredHeight();
-            }
-        }
+    // Hide action
+    public void dismiss() {
+        onShowOrDismissAnimation(false);
     }
 
-    public void clear() {
-        _logcatInfoList.clear();
-        LogcatInfo.Counter.clear();
-        _headerView.initCounts();
+    private void rebuildConsoleLogViewList() {
+        _consoleLogViewList.clear();
+        for (int i = 0; i < _consoleLogList.size(); i++) {
+            ConsoleLog consoleLog = _consoleLogList.get(i);
+            int logType = consoleLog.getLogType();
+            switch (logType) {
+                case Log.DEBUG:
+                    if (_ignoreConsoleLogDebug == false)
+                        _consoleLogViewList.add(consoleLog);
+                    break;
+                case Log.WARN:
+                    if (_ignoreConsoleLogWarn == false)
+                        _consoleLogViewList.add(consoleLog);
+                    break;
+                case Log.ERROR:
+                    if (_ignoreConsoleLogError == false)
+                        _consoleLogViewList.add(consoleLog);
+                    break;
+                default:
+                    break;
+            }
+        }
         _recyclerAdapter.notifyDataSetChanged();
     }
 
+    private void clear() {
+        _headerView.initCounts();
+
+        _consoleLogList.clear();
+        _consoleLogViewList.clear();
+        _consoleLogDebugCount = 0;
+        _consoleLogWarnCount = 0;
+        _consoleLogErrorCount = 0;
+        _recyclerAdapter.notifyDataSetChanged();
+    }
+
+    private void clipboard() {
+        ClipboardManager clipboardManager = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("full_log", getFullLog());
+        clipboardManager.setPrimaryClip(clipData);
+        Toast.makeText(getContext(), "Copy to clipboard", Toast.LENGTH_SHORT).show();
+    }
+
+    // 공통 인텐트 - 이메일
+    // https://developer.android.com/guide/components/intents-common?hl=ko#Email
+    private void sendEmail() {
+        Log.d(TAG, "sendEmail");
+        Date currentDate = Calendar.getInstance().getTime();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddhhmmss");
+        String currentDateStr = simpleDateFormat.format(currentDate);
+        Uri attachment = getLogFileUri(currentDateStr);
+        composeEmail("LogView_" + currentDateStr, attachment);
+    }
+
+    private void composeEmail(String subject, Uri attachment) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:"));
+        //intent.putExtra(Intent.EXTRA_EMAIL, addresses);
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        if (attachment != null) {
+            intent.putExtra(Intent.EXTRA_STREAM, attachment);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            // How to use support FileProvider for sharing content to other apps?
+            // https://stackoverflow.com/questions/18249007/how-to-use-support-fileprovider-for-sharing-content-to-other-apps
+            List<ResolveInfo> resInfoList = getContext().getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+            for (ResolveInfo resolveInfo : resInfoList) {
+                String packageName = resolveInfo.activityInfo.packageName;
+                getContext().grantUriPermission(packageName, attachment, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+        }
+        if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+            getContext().startActivity(intent);
+        }
+    }
+    //endregion
+
+    //region Utils
+    private String getFullLog() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < _consoleLogList.size(); i ++) {
+            stringBuilder.append(_consoleLogList.get(i).getLog());
+            stringBuilder.append("\n\r");
+        }
+        return stringBuilder.toString();
+    }
+
+    private Uri getLogFileUri(String currentDateStr) {
+        String filename = "log_" + currentDateStr + ".txt";
+        writeToFile(filename, getFullLog());
+        return getFileUri(filename);
+    }
+
+    private void writeToFile(String filename, String string) {
+        try {
+            File file = new File(getContext().getFilesDir(), filename);
+            if (file.exists() == false)
+                file.createNewFile();
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+            outputStreamWriter.write(string);
+            outputStreamWriter.close();
+            fileOutputStream.close();
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG);
+        }
+    }
+
+    private Uri getFileUri(String filename) {
+        File file = new File(getContext().getFilesDir(), filename);
+        String authority = getContext().getPackageName() + ".fileprovider";
+        try {
+            return FileProvider.getUriForFile(getContext(), authority, file);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, e.getMessage());
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG);
+        }
+        return null;
+    }
+    //endrgion
+
+    //region Logcat Service
     public void onResume() {
         bind();
     }
@@ -380,13 +388,11 @@ public class LogView extends ViewGroup {
         getContext().unbindService(_serviceConnection);
     }
 
-
     private ServiceConnection _serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             _logBinder = ILogBinder.Stub.asInterface((IBinder)service);
             LogService.setHandler(_handler);
-
             run();
         }
 
@@ -402,16 +408,60 @@ public class LogView extends ViewGroup {
             ((Activity)getContext()).runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (_recyclerAdapter != null) {
-                        LogcatInfo logcatInfo = new LogcatInfo(newLog);
-                        _logcatInfoList.add(logcatInfo);
-                        _headerView.setCount(logcatInfo.getLogType(), LogcatInfo.Counter.getCount(logcatInfo.getLogType()));
-                        _recyclerAdapter.notifyDataSetChanged();;
-                    }
+                    addNewLog(newLog);
+
                 }
             });
         }
     };
+
+    private void addNewLog(final String newLog) {
+        ConsoleLog consoleLog = new ConsoleLog(newLog);
+
+        int logType = consoleLog.getLogType();
+        int count = 0;
+        if (_consoleLogList != null && _consoleLogViewList != null) {
+            _consoleLogList.add(consoleLog);
+
+            switch (logType) {
+                case Log.DEBUG:
+                    if (_ignoreConsoleLogDebug == false) {
+                        _consoleLogViewList.add(consoleLog);
+                    }
+                    _consoleLogDebugCount++;
+                    count = _consoleLogDebugCount;
+                    break;
+                case Log.WARN:
+                    if (_ignoreConsoleLogWarn == false) {
+                        _consoleLogViewList.add(consoleLog);
+                    }
+                    _consoleLogWarnCount++;
+                    count = _consoleLogWarnCount;
+                    break;
+                case Log.ERROR:
+                    if (_ignoreConsoleLogError == false) {
+                        _consoleLogViewList.add(consoleLog);
+                    }
+                    _consoleLogErrorCount++;
+                    count = _consoleLogErrorCount;
+                    break;
+                default:
+                    break;
+            }
+
+            if (_recyclerAdapter != null) {
+                _recyclerAdapter.notifyDataSetChanged();
+            }
+        }
+
+        updateLogCount(logType, count);
+    }
+
+    private void updateLogCount(int logType, int count) {
+        if (_headerView != null) {
+            _headerView.setCount(logType, count);
+        }
+    }
 
     private Handler _handler = new Handler() {
         @Override
@@ -426,40 +476,5 @@ public class LogView extends ViewGroup {
             }
         }
     };
-
-    @Override
-    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new LogView.LayoutParams(getContext(), attrs);
-    }
-
-    // Override to allow type-checking of LayoutParams.
-    @Override
-    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        return p instanceof LogView.LayoutParams;
-    }
-
-    @Override
-    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return new LayoutParams(p);
-    }
-
-    @Override
-    public boolean shouldDelayChildPressedState() {
-        return false;
-    }
-
-    public static class LayoutParams extends ViewGroup.LayoutParams {
-
-        public LayoutParams(int width, int height) {
-            super(width, height);
-        }
-
-        public LayoutParams(Context c, AttributeSet attrs) {
-            super(c, attrs);
-        }
-
-        public LayoutParams(ViewGroup.LayoutParams source) {
-            super(source);
-        }
-    }
+    //endregion
 }

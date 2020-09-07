@@ -8,7 +8,7 @@
     <!-- My Colors -->
     <color name="colorConsoleHeaderBackground">#2D2B29</color>
     <color name="colorConsoleHeaderEnableText">#868686</color>
-    <color name="colorConsoleHeaderDisalbeText">#565656</color>
+    <color name="colorConsoleHeaderDisalbeText">#4C4C4A</color>
     <color name="colorConsoleFooterBackground">#2D2B29</color>
     <color name="colorConsoleListViewBackground">#2D2B29</color>
     <color name="colorConsoleListViewTextBackgroundA">#373737</color>
