@@ -4,6 +4,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.os.Debug;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -12,6 +14,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.w3c.dom.Text;
@@ -50,10 +55,57 @@ class ConsoleAdpater extends RecyclerView.Adapter<ConsoleAdpater.ConsoleItemView
         public void setIcon(int icon) {
             _textView.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0);
         }
+
+        public void setSelectionTracaker(final SelectionTracker<Long> selectionTracaker) {
+            if (selectionTracaker != null && selectionTracaker.isSelected((long)getAdapterPosition()) == true) {
+                // [Android] Cannot call this method while RecyclerView is computing a layout or scrolling
+                // https://gogorchg.tistory.com/entry/Android-Cannot-call-this-method-while-RecyclerView-is-computing-a-layout-or-scrolling
+                Handler handler = new Handler();
+                final Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (0 <= getAdapterPosition() && getAdapterPosition() < _resource.size()) {
+                            if (ConsoleDialog.isShow == false) {
+                                ConsoleDialog.getInstance(_resource.get(getAdapterPosition())).show(((Activity)getContext()).getFragmentManager(), TAG);
+                            }
+                        }
+                        selectionTracaker.deselect((long)getAdapterPosition());
+                    }
+                };
+                handler.post(r);
+            }
+        }
+
+        public ItemDetailsLookup.ItemDetails<Long> getItemDetails() {
+            return new ItemDetailsLookup.ItemDetails<Long>() {
+                @Override
+                public int getPosition() {
+                    return getAdapterPosition();
+                }
+
+                @Nullable
+                @Override
+                public Long getSelectionKey() {
+                    return getItemId();
+                }
+
+                @Override
+                public boolean inSelectionHotspot(@NonNull MotionEvent e) {
+                    return true;
+                }
+            };
+        }
     }
 
     public ConsoleAdpater(ArrayList<ConsoleLog> resource) {
         _resource = resource;
+        setHasStableIds(true);
+    }
+
+    private SelectionTracker<Long> _selectionTracker = null;
+
+    public void setSelectionTracker(SelectionTracker<Long> selectionTracker) {
+        _selectionTracker = selectionTracker;
     }
 
     private int getLogTypeIcon(int logType) {
@@ -85,29 +137,16 @@ class ConsoleAdpater extends RecyclerView.Adapter<ConsoleAdpater.ConsoleItemView
         viewHoler.setBackgroundColor((position % 2 == 0) ? viewHoler.getContext().getColor(R.color.colorConsoleListViewTextBackgroundA) : viewHoler.getContext().getColor(R.color.colorConsoleListViewTextBackgroundB));
         viewHoler.setText(_resource.get(position).getSummary());
         viewHoler.setIcon(getLogTypeIcon(_resource.get(position).getLogType()));
-        viewHoler._itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick");
-            }
-        });
-        viewHoler._itemView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                Log.d(TAG, "onFocusChange:" + hasFocus);
-            }
-        });
-        viewHoler._itemView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Log.d(TAG, "onTouch:" + event.getAction());
-                return true;
-            }
-        });
+        viewHoler.setSelectionTracaker(_selectionTracker);
     }
 
     @Override
     public int getItemCount() {
         return _resource.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 }

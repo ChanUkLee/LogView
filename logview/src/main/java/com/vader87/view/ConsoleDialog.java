@@ -83,6 +83,7 @@ public class ConsoleDialog extends DialogFragment implements View.OnClickListene
         linearLayout.addView(textView);
 
         setCancelable(false);
+        getDialog().setCanceledOnTouchOutside(true);
         return view;
     }
 

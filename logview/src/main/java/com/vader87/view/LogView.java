@@ -12,6 +12,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -26,7 +27,15 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.selection.MutableSelection;
+import androidx.recyclerview.selection.Selection;
+import androidx.recyclerview.selection.SelectionPredicates;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.StableIdKeyProvider;
+import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 // How to create a release android library package (aar) in Android Studio (not debug)
 // https://stackoverflow.com/questions/27646262/how-to-create-a-release-android-library-package-aar-in-android-studio-not-deb
@@ -172,6 +182,16 @@ public class LogView extends LinearLayout {
 
         _recyclerAdapter = new ConsoleAdpater(_consoleLogViewList);
         _recyclerView.setAdapter(_recyclerAdapter);
+
+        SelectionTracker selectionTracker = new SelectionTracker.Builder<> (
+                getContext().getPackageName() + ".selectiontracker",
+                _recyclerView,
+                new StableIdKeyProvider(_recyclerView),
+                new ConsoleDetailsLookUp(_recyclerView),
+                StorageStrategy.createLongStorage())
+                .withSelectionPredicate(SelectionPredicates.<Long>createSelectSingleAnything())
+                .build();
+        _recyclerAdapter.setSelectionTracker(selectionTracker);
 
         bind();
         //addView(_rootLayout);
